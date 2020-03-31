@@ -1,144 +1,117 @@
--- CHAPTER 2 data types
+-- 01 comparison operators
 
--- 01 create table
-USE scratch;
+-- comparison ops (==)
+SELECT 0 = 0;
+SELECT 0 = 1;
+-- STRING IS CONVERTED TO NUMBER
+SELECT 0 = '0';
+SELECT '0.1' > 0;
+SELECT '0.1' < 0;
+SELECT 0.1 < 0;
+SELECT 9 < 7;
+SELECT 9 > 7;
+SELECT 9 = 7;
+SELECT 9 != 7;
+SELECT 9 <= 7;
+SELECT 9 >= 7;
+SELECT (9 > 7) AND (12 < 27);
+SELECT (9 > 7) OR (12 < 27);
+SELECT (9 > 7) IS TRUE;
+SELECT (9 < 7) IS NOT TRUE; 
+-- 1
 
--- table definition
-CREATE TABLE test (
-  -- integer
-    id INT,
-    -- variable length string
-    name VARCHAR(255),
-    address VARCHAR(255),
-    city VARCHAR(255),
-    -- fixed len string
-    state CHAR(2),
-    -- col,...
-    zip CHAR(10)
-);
+-- 02 logical operators
+-- basic logical
+SELECT 1 AND 1;
+SELECT 1 OR 1;
+SELECT 1 OR 0;
+SELECT 1 XOR 0;
+SELECT 1 XOR 1;
 
--- this will show the layout of the table we just defined (cols)
-DESCRIBE test;
-SHOW TABLE STATUS;
--- will show how mysql interpretted the create table
-SHOW CREATE TABLE test;
+SELECT 1 IS TRUE;
+SELECT 1 IS NOT TRUE;
 
--- means we dont need the table anymore
-DROP TABLE IF EXISTS test;
+SELECT 1 IS NULL;
+SELECT 1 IS NOT NULL;
+SELECT 0 IS NULL;
+SELECT 0 IS NULL;
+SELECT NULL IS NULL;
+SELECT '' IS NULL;
 
--- 03 numeric types
+-- TESTING FOR IN A SET
+SELECT 7 IN (1, 5, 9);
+SELECT 9 IN (1, 5, 9);
 
-/*
- CREATE TABLE numerics (
-    id INTEGER NOT NULL AUTO_INCREMENT PRIMARY KEY,
-    da DECIMAL(10, 2),
-    db DECIMAL(10, 2),
-    fa FLOAT,
-    fb FLOAT
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-*/
-USE scratch;
-DESCRIBE numerics;
-SELECT * FROM numerics;
-SELECT da + db, fa + fb FROM numerics;
-SELECT da + db = 0.3 FROM numerics;
-SELECT fa + fb = 0.3 FROM numerics;
-SELECT fa + fb FROM numerics;
+USE world;
+SELECT Name AS 'Country', ROUND(Population / 1000000) AS 'PopMM'
+  FROM Country
+  -- BASIC OVERVIEW IN ACTION
+  WHERE Population > 50000000 AND Continent IN ('Asia', 'Europe')
+  -- FINAL ORDER
+  ORDER BY Population DESC;
 
--- 04 date and time
+SELECT t.title AS 'Track', t.track_number AS 'Track No', a.title AS 'Album',
+    a.artist AS 'Artist', t.duration AS 'Seconds'
+  FROM Album AS a
+  JOIN Track AS t ON t.album_id = a.id
+  -- alright
+  WHERE t.duration > 120 AND t.track_number > 3
+  ORDER BY t.duration DESC;
 
-USE scratch;
-SELECT NOW();
-SHOW VARIABLES LIKE '%time_zone%';
-SET time_zone = '+00:00';
-SET time_zone = "SYSTEM";
-SELECT UTC_TIMESTAMP();
+-- 03 assignment operators
 
-# obsolete TIMESTAMP
-DROP TABLE IF EXISTS temp;
-CREATE TABLE temp (
-  id INT UNSIGNED UNIQUE AUTO_INCREMENT PRIMARY KEY,
-  stamp TIMESTAMP,
-  name VARCHAR(64)
-);
-INSERT INTO temp (name) VALUES ('this');
-INSERT INTO temp (name) VALUES ('that');
-INSERT INTO temp (name) VALUES ('other');
-SELECT * FROM temp;
+SELECT 5 + 3;
+SELECT 5 - 3;
+SELECT 5 * 3;
+SELECT 5 / 3;
+SELECT 5 DIV 3;
+SELECT 5 MOD 3;
+SELECT 5 / 0;
+-- NULL
 
-# with DATETIME
-CREATE TABLE temp (
-  id INT UNSIGNED UNIQUE AUTO_INCREMENT PRIMARY KEY,
-  stamp DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  name VARCHAR(64)
-);
+-- 04 operator precedence
 
-UPDATE temp SET name = 'Jackson Pollack' WHERE id = 2;
+-- similar to C/C++ other langs
+SELECT 5 + 6 * 7 - 8;
+SELECT (5 + 6) * (7 - 8);
+SELECT 5 + (6 * 7) - 8;
 
-DROP TABLE IF EXISTS temp;
-
--- 05 String
--- CHAR: fixed
--- VARCHAR: variable string
--- BINARY: binary string
--- VARBINARY
--- BLOB objs, binary large objects
--- TEXT
--- each ^^ can have {TINY,MEDIUM,LONG} as prefix
-
--- 06 enum
+-- 05 The CASE statement
 
 USE scratch;
 
-DROP TABLE IF EXISTS test;
-CREATE TABLE test (
-  id INT UNSIGNED UNIQUE AUTO_INCREMENT PRIMARY KEY,
-  -- list the enum
-  a ENUM( 'Pablo', 'Henri', 'Jackson' )
-);
--- here you're selecting from enum
-INSERT INTO test ( a ) VALUES ( 'Pablo' );
-INSERT INTO test ( a ) VALUES ( 'Henri' );
-INSERT INTO test ( a ) VALUES ( 'Jackson' );
-INSERT INTO test ( a ) VALUES ( 1 );
-INSERT INTO test ( a ) VALUES ( 2 );
-INSERT INTO test ( a ) VALUES ( 3 );
-SELECT * FROM test;
+DROP TABLE IF EXISTS booltest;
+CREATE TABLE booltest (a INTEGER, b INTEGER);
+INSERT INTO booltest VALUES (1, 0);
+SELECT * FROM booltest;
 
-DROP TABLE IF EXISTS test;
-CREATE TABLE test (
-  id INT UNSIGNED UNIQUE AUTO_INCREMENT PRIMARY KEY,
-  a SET( 'Pablo', 'Henri', 'Jackson' )
-);
-INSERT INTO test ( a ) VALUES ( 'Pablo' );
-INSERT INTO test ( a ) VALUES ( 'Henri' );
-INSERT INTO test ( a ) VALUES ( 'Jackson' );
-INSERT INTO test ( a ) VALUES ( 'Pablo,Jackson,Henri,Henri,Henri' );
-INSERT INTO test ( a ) VALUES ( 1 );
-INSERT INTO test ( a ) VALUES ( 2 );
-INSERT INTO test ( a ) VALUES ( 3 );
-INSERT INTO test ( a ) VALUES ( 4 );
-INSERT INTO test ( a ) VALUES ( 5 );
-INSERT INTO test ( a ) VALUES ( 6 );
-INSERT INTO test ( a ) VALUES ( 7 );
-SELECT * FROM test;
+-- SWITCH CASE
+SELECT
+  CASE WHEN a < 5 THEN 'true' ELSE 'false' END AS boolA,
+  CASE WHEN b > 0 THEN 'true' ELSE 'false' END AS boolB
+  FROM booltest
+;
 
-DROP TABLE IF EXISTS test;
+SELECT
+  CASE a WHEN 1 THEN 'true' ELSE 'false' END AS boolA,
+  CASE b WHEN 1 THEN 'true' ELSE 'false' END AS boolB
+  FROM booltest
+;
 
--- 07 serial
+DROP TABLE IF EXISTS booltest;
+
+-- 06 the IF statement
 
 USE scratch;
 
-DROP TABLE IF EXISTS test;
-CREATE TABLE test (
-  id INT UNSIGNED UNIQUE AUTO_INCREMENT PRIMARY KEY,
-  a VARCHAR(32)
-);
-INSERT INTO test ( a ) VALUES ( 'Pablo' );
-INSERT INTO test ( a ) VALUES ( 'Henri' );
-INSERT INTO test ( a ) VALUES ( 'Jackson' );
-SELECT * FROM test;
-DESCRIBE test;
-SHOW CREATE TABLE test;
-DROP TABLE IF EXISTS test;
+DROP TABLE IF EXISTS booltest;
+CREATE TABLE booltest (a INTEGER, b INTEGER);
+INSERT INTO booltest VALUES (1, 0);
+SELECT * FROM booltest;
+
+-- condition, if true, if false ==> this is excel
+SELECT IF(a < 5, 'TRUE', 'FALSE') FROM booltest;
+SELECT IF(b > 0, 'TRUE', 'FALSE') FROM booltest;
+
+DROP TABLE IF EXISTS booltest;
 
