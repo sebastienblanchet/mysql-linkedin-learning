@@ -1,61 +1,47 @@
--- 01 value functions
--- continued with some basic excel functionss
-SELECT ABS(-47);
-SELECT ABS(-47.73);
+-- 01 string concatenation
 
-SELECT CEILING(12.2);
-SELECT CEIL(12.2);
+-- STANDARD SQL
+SELECT 'string1' || 'string2'; -- standard not mysql
+SELECT TRUE || FALSE;          -- non-standard mysql
+SELECT TRUE OR FALSE;
+SELECT CONCAT('string1', 'string2');
 
-SELECT ROUND(17.5);
-SELECT ROUND(17.4);
+-- 02 quote marks
+SELECT 'this is a string';
+SELECT "this is a string";
 
--- number of decimals, essentially returns
-SELECT TRUNCATE(42.973, 1);
-SELECT TRUNCATE(42.973, 2);
--- <0 ===> LEFT of .
-SELECT TRUNCATE(99942.973, -2);
+USE scratch;
+-- problem: double quotes are literals
+SELECT "name", "address" FROM customer;
+-- NEEED TO USE BACK TICKS
+SELECT `name`, `address` FROM customer;
 
--- 02 math funcitons
+-- 03 the modulo operator
 
-SELECT PI();
--- FULL PRECISION
-SELECT PI() + 0.000000000000000;
+SELECT 47 / 3;
+SELECT DIV(47,3);       -- standard not mysql
+SELECT MOD(47,3);
+SELECT 47 MOD 3;        -- non-standard operator
+SELECT 47 % 3;          -- non-standard operator
 
--- SAME
-SELECT POWER(8, 2);
-SELECT POW(8, 2);
+-- 04 comments
 
--- FRATIONAL POWERSs
-SELECT SQRT(64);
-SELECT POWER(4096, 1/4);
+--SQL standard comment
+-- SQL standard comment
 
--- PSEUDO random
-SELECT RAND();
--- SEED
-SELECT RAND(42);
+-- WEIIRD
+# non-standard MySQL comment
+#non-standard MySQL comment
 
--- 03 trigonometry
--- ARGS in rad
-SELECT SIN(2);
-SELECT ASIN(.2);
-SELECT COS(PI());
-SELECT ACOS(.5);
-SELECT TAN(PI());
-SELECT ATAN(2);
-SELECT COT(12);
+/*
+    SQL standard 
+    multi-line comment
+*/
 
--- 04 logarithms
+/*!
+    SELECT 'MySQL executable comment' AS `Say what?!`
+*/ ;
 
-SELECT LN(2);
-SELECT LOG(2);
--- provide base
-SELECT LOG(10, 100);
-SELECT LOG(2, 65535);
-SELECT LOG2(65535);
-SELECT LOG10(100);
-SELECT EXP(1);
+SELECT 1 /*! + 2 */ ;
 
--- 05 degrees and radians
 
-SELECT DEGREES(PI());
-SELECT RADIANS(180);
