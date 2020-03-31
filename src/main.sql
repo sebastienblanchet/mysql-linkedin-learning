@@ -1,131 +1,144 @@
--- field: column
--- each row in table has unique key
--- if a colum is used as key ==> primary key
--- foreign keys ==> refered to IDs of other table, used for joined queries
+-- CHAPTER 2 data types
 
--- 03 Selecting Rows
-USE world;
-SELECT 'Hello, World';
-SELECT 1 + 2;
-
--- all rows from all colum country
-SELECT * FROM Country;
-
--- order is specified
-SELECT * FROM Country ORDER BY Name;
-
-SELECT Name, LifeExpectancy FROM Country ORDER BY Name;
--- AS clause is for an alias
-SELECT Name, LifeExpectancy AS "Life Expectancy" FROM Country ORDER BY Name;
--- COUNT returns the number results
-SELECT COUNT(*) FROM Country;
--- LIMIT does what you think
-SELECT * FROM Country ORDER BY Name LIMIT 5;
--- LIMIT {OFFSET}, {NEXT OFFSET}
-SELECT * FROM Country ORDER BY Name LIMIT 5, 5;
-SELECT * FROM Country ORDER BY Name LIMIT 10, 5;
-
--- 04 Selecting Columns
-
-USE world;
--- wildcard * ALL cols
-SELECT * FROM Country ORDER BY Code;
--- limit cols to run query
-SELECT Name, Code, Region, Population FROM Country ORDER BY Code;
--- AS is alias
-SELECT Name AS Country, Code AS ISO, Region, Population AS Pop FROM Country ORDER BY Code;
-
--- 05 Counting Rows
-USE world;
--- as per previou
-SELECT COUNT(*) FROM Country;
--- WHERE clause is a checks where rows meet condition
-SELECT COUNT(*) FROM Country WHERE Population > 1000000;
-SELECT COUNT(*) FROM Country WHERE Population > 100000000;
-SELECT COUNT(*) FROM Country WHERE Population > 100000000 AND Continent = 'Europe' ;
-SELECT COUNT(*) FROM Country;
--- ONLY counts the rows where LifeExpectancy has data i.e. not empty
-SELECT COUNT(LifeExpectancy) FROM Country;
-
-
--- 06 Inserting Data
-
-USE scratch;
-SELECT * FROM customer;
--- creating a new row in table
-INSERT INTO customer (name, address, city, state, zip) VALUES ('Fred Flintstone', '123 Cobblestone Way', 'Bedrock', 'CA', '91234');
--- did not specify all values, null is inserted into unspecified files
-INSERT INTO customer (name, city, state) VALUES ('Jimi Hendrix', 'Renton', 'WA');
-SELECT * FROM customer;
-
-
--- 07 Updating Data
-
-USE scratch;
-SELECT * FROM customer;
--- LIKE clause is similar to REGEX, wildcard %
-SELECT * FROM customer WHERE name LIKE 'Jimi%';
--- Now we update the Jimi%
-UPDATE customer SET address = '123 Music Avenue', zip = '98056' WHERE name LIKE 'Jimi%';
--- update again
-UPDATE customer SET address = '987 Mockingbird Lane' WHERE name LIKE 'Jimi%';
-UPDATE customer SET address = NULL, zip = NULL WHERE name LIKE 'Jimi%';
-
-
--- 08 Deleting Data
-
+-- 01 create table
 USE scratch;
 
--- create some bs db
-CREATE TABLE test ( a INT, b VARCHAR(16), c VARCHAR(16) );
-INSERT INTO test VALUES ( 1, 'this', 'right here!' );
-INSERT INTO test VALUES ( 2, 'that', 'over there!' );
-INSERT INTO test VALUES ( 3, 'another', 'nowhere.' );
-INSERT INTO test VALUES ( 4, 'again', 'guess where?' );
-INSERT INTO test VALUES ( 1, 'one more', 'everywhere!' );
+-- table definition
+CREATE TABLE test (
+  -- integer
+    id INT,
+    -- variable length string
+    name VARCHAR(255),
+    address VARCHAR(255),
+    city VARCHAR(255),
+    -- fixed len string
+    state CHAR(2),
+    -- col,...
+    zip CHAR(10)
+);
 
--- start deleting some stuff
+-- this will show the layout of the table we just defined (cols)
+DESCRIBE test;
+SHOW TABLE STATUS;
+-- will show how mysql interpretted the create table
+SHOW CREATE TABLE test;
+
+-- means we dont need the table anymore
+DROP TABLE IF EXISTS test;
+
+-- 03 numeric types
+
+/*
+ CREATE TABLE numerics (
+    id INTEGER NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    da DECIMAL(10, 2),
+    db DECIMAL(10, 2),
+    fa FLOAT,
+    fb FLOAT
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+*/
+USE scratch;
+DESCRIBE numerics;
+SELECT * FROM numerics;
+SELECT da + db, fa + fb FROM numerics;
+SELECT da + db = 0.3 FROM numerics;
+SELECT fa + fb = 0.3 FROM numerics;
+SELECT fa + fb FROM numerics;
+
+-- 04 date and time
+
+USE scratch;
+SELECT NOW();
+SHOW VARIABLES LIKE '%time_zone%';
+SET time_zone = '+00:00';
+SET time_zone = "SYSTEM";
+SELECT UTC_TIMESTAMP();
+
+# obsolete TIMESTAMP
+DROP TABLE IF EXISTS temp;
+CREATE TABLE temp (
+  id INT UNSIGNED UNIQUE AUTO_INCREMENT PRIMARY KEY,
+  stamp TIMESTAMP,
+  name VARCHAR(64)
+);
+INSERT INTO temp (name) VALUES ('this');
+INSERT INTO temp (name) VALUES ('that');
+INSERT INTO temp (name) VALUES ('other');
+SELECT * FROM temp;
+
+# with DATETIME
+CREATE TABLE temp (
+  id INT UNSIGNED UNIQUE AUTO_INCREMENT PRIMARY KEY,
+  stamp DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  name VARCHAR(64)
+);
+
+UPDATE temp SET name = 'Jackson Pollack' WHERE id = 2;
+
+DROP TABLE IF EXISTS temp;
+
+-- 05 String
+-- CHAR: fixed
+-- VARCHAR: variable string
+-- BINARY: binary string
+-- VARBINARY
+-- BLOB objs, binary large objects
+-- TEXT
+-- each ^^ can have {TINY,MEDIUM,LONG} as prefix
+
+-- 06 enum
+
+USE scratch;
+
+DROP TABLE IF EXISTS test;
+CREATE TABLE test (
+  id INT UNSIGNED UNIQUE AUTO_INCREMENT PRIMARY KEY,
+  -- list the enum
+  a ENUM( 'Pablo', 'Henri', 'Jackson' )
+);
+-- here you're selecting from enum
+INSERT INTO test ( a ) VALUES ( 'Pablo' );
+INSERT INTO test ( a ) VALUES ( 'Henri' );
+INSERT INTO test ( a ) VALUES ( 'Jackson' );
+INSERT INTO test ( a ) VALUES ( 1 );
+INSERT INTO test ( a ) VALUES ( 2 );
+INSERT INTO test ( a ) VALUES ( 3 );
 SELECT * FROM test;
--- specific ID
-DELETE FROM test WHERE a = 2;
-DELETE FROM test WHERE a = 1;
--- deletes everything
-DELETE FROM test;
+
+DROP TABLE IF EXISTS test;
+CREATE TABLE test (
+  id INT UNSIGNED UNIQUE AUTO_INCREMENT PRIMARY KEY,
+  a SET( 'Pablo', 'Henri', 'Jackson' )
+);
+INSERT INTO test ( a ) VALUES ( 'Pablo' );
+INSERT INTO test ( a ) VALUES ( 'Henri' );
+INSERT INTO test ( a ) VALUES ( 'Jackson' );
+INSERT INTO test ( a ) VALUES ( 'Pablo,Jackson,Henri,Henri,Henri' );
+INSERT INTO test ( a ) VALUES ( 1 );
+INSERT INTO test ( a ) VALUES ( 2 );
+INSERT INTO test ( a ) VALUES ( 3 );
+INSERT INTO test ( a ) VALUES ( 4 );
+INSERT INTO test ( a ) VALUES ( 5 );
+INSERT INTO test ( a ) VALUES ( 6 );
+INSERT INTO test ( a ) VALUES ( 7 );
 SELECT * FROM test;
 
--- removes the db test
-DROP TABLE test;
+DROP TABLE IF EXISTS test;
 
--- go back and delete those added rows ^^
-SELECT * FROM customer;
-SELECT * FROM customer WHERE name LIKE 'Jimi%' OR name LIKE 'Fred%';
-DELETE FROM customer WHERE name LIKE 'Jimi%' OR name LIKE 'Fred%';
-SELECT * FROM customer;
-
-
--- 09 Joining queries
-
-USE album;
--- each album has track table
-SELECT * FROM album;
-SELECT * FROM track;
-
--- join those two select *
-SELECT a.artist AS Artist, a.title AS Album, t.track_number AS 'Track Num',
-    t.title AS Track, t.duration AS Seconds
-  FROM album AS a
-  -- THIS IS THE POWER OF RELATIONAL DATABASES
-  JOIN track AS t ON a.id = t.album_id
-  ORDER BY a.artist, a.title, t.track_number;
-
-
--- 10 Finding databases, tables, and columns
+-- 07 serial
 
 USE scratch;
--- available dbs in server
-SHOW databases;
--- available tables in server
-SHOW tables;
--- lsit cols in table
-DESCRIBE item;
+
+DROP TABLE IF EXISTS test;
+CREATE TABLE test (
+  id INT UNSIGNED UNIQUE AUTO_INCREMENT PRIMARY KEY,
+  a VARCHAR(32)
+);
+INSERT INTO test ( a ) VALUES ( 'Pablo' );
+INSERT INTO test ( a ) VALUES ( 'Henri' );
+INSERT INTO test ( a ) VALUES ( 'Jackson' );
+SELECT * FROM test;
+DESCRIBE test;
+SHOW CREATE TABLE test;
+DROP TABLE IF EXISTS test;
 
